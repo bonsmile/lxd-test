@@ -10,8 +10,11 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(fmt EXCLUDE_FROM_ALL)
 # lxd
 add_subdirectory(./lxd lxd)
+#
+find_package(GTest CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp)
-#target_compile_definitions( ${PROJECT_NAME} PUBLIC -DBUILDING_DLL )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE lxd GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
