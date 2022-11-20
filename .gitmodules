@@ -1,6 +1,6 @@
 [submodule "lxd"]
 	path = lxd
-	url = https://gitee.com/bonsmile/lxd.git
+	url=https://github.com/bonsmile/lxd.git
 	branch = main
 [submodule "fmt"]
 	path = fmt
