@@ -1,4 +1,4 @@
-// Copyright 2017 The Abseil Authors.
+﻿// Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,84 +17,42 @@
 #include "lxd/strings/str_cat.h"
 #include "lxd/strings/match.h"
 #include <deque>
-#include <initializer_list>
-#include <list>
-#include <map>
-#include <memory>
-#include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-//#include "absl/base/dynamic_annotations.h"
-//#include "absl/base/macros.h"
-//#include "absl/container/btree_map.h"
-//#include "absl/container/btree_set.h"
-//#include "absl/container/flat_hash_map.h"
-//#include "absl/container/node_hash_map.h"
-//#include "absl/strings/numbers.h"
-
-#include "lxd/json.h"
 
 namespace {
-
-    TEST(Json, Read) {
-        const char* json = R"({"code":200,"data":[{"create_time":"2022 - 01 - 18 11:34 : 30","content":"\u65b9\u6848\uff1a20210607105659\uff0c\u56de\u68c0\u9a73\u56de\uff01\u9a73\u56de\u539f\u56e0\uff1a\u9a73\u56de\u7406\u7531"},{"create_time":"2021 - 06 - 07 10:59 : 40","content":"\u65b9\u6848\uff1a20210607105659\u5f85\u56de\u68c0\uff01"}]})";
-        ksJson* rootNode = ksJson_Create();
-        std::vector<std::pair<std::string, std::string>> logs;
-        const char** error = NULL;
-        if(ksJson_ReadFromBuffer(rootNode, json, error)) {
-            const ksJson* codeNode = ksJson_GetMemberByName(rootNode, "code");
-            if(ksJson_GetInt32(codeNode, 0) == 200) {
-                const ksJson* dataNode = ksJson_GetMemberByName(rootNode, "data");
-                assert(dataNode);
-                for(int i = 0; i < ksJson_GetMemberCount(dataNode); i++) {
-                    const ksJson* opt = ksJson_GetMemberByIndex(dataNode, i);
-                    const char* time = ksJson_GetString(ksJson_GetMemberByName(opt, "create_time"), "");
-                    const char* content = ksJson_GetString(ksJson_GetMemberByName(opt, "content"), "");
-                    logs.push_back({time, content});
-                }
-            }
-        }
-        ksJson_Destroy(rootNode);
-        EXPECT_EQ(logs.size(), 2);
-        EXPECT_EQ(logs[0].first, "2022 - 01 - 18 11:34 : 30");
-        EXPECT_EQ(logs[1].first, "2021 - 06 - 07 10:59 : 40");
-    }
-
     using ::testing::ElementsAre;
     using ::testing::Pair;
     using ::testing::UnorderedElementsAre;
 
     TEST(Split, TraitsTest) {
         static_assert(!absl::strings_internal::SplitterIsConvertibleTo<int>::value,
-                      "");
+            "");
         static_assert(
             !absl::strings_internal::SplitterIsConvertibleTo<std::string>::value, "");
         static_assert(absl::strings_internal::SplitterIsConvertibleTo<
-                      std::vector<std::string>>::value,
-                      "");
+            std::vector<std::string>>::value,
+            "");
         static_assert(
             !absl::strings_internal::SplitterIsConvertibleTo<std::vector<int>>::value,
             "");
         static_assert(absl::strings_internal::SplitterIsConvertibleTo<
-                      std::vector<std::string_view>>::value,
-                      "");
+            std::vector<std::string_view>>::value,
+            "");
         static_assert(absl::strings_internal::SplitterIsConvertibleTo<
-                      std::map<std::string, std::string>>::value,
-                      "");
+            std::map<std::string, std::string>>::value,
+            "");
         static_assert(absl::strings_internal::SplitterIsConvertibleTo<
-                      std::map<std::string_view, std::string_view>>::value,
-                      "");
+            std::map<std::string_view, std::string_view>>::value,
+            "");
         static_assert(!absl::strings_internal::SplitterIsConvertibleTo<
-                      std::map<int, std::string>>::value,
-                      "");
+            std::map<int, std::string>>::value,
+            "");
         static_assert(!absl::strings_internal::SplitterIsConvertibleTo<
-                      std::map<std::string, int>>::value,
-                      "");
+            std::map<std::string, int>>::value,
+            "");
     }
 
     // This tests the overall split API, which is made up of the absl::StrSplit()
@@ -114,7 +72,7 @@ namespace {
 
             // Equivalent to...
             EXPECT_THAT(absl::StrSplit("a,b,c", ByString(",")),
-                        ElementsAre("a", "b", "c"));
+                ElementsAre("a", "b", "c"));
         }
 
         {
@@ -251,7 +209,7 @@ namespace {
         {
             // Demonstrates use in a range-based for loop in C++11.
             std::string s = "x,x,x,x,x,x,x";
-            for(std::string_view sp : absl::StrSplit(s, ',')) {
+            for (std::string_view sp : absl::StrSplit(s, ',')) {
                 EXPECT_EQ("x", sp);
             }
         }
@@ -260,7 +218,7 @@ namespace {
             // Demonstrates use with a Predicate in a range-based for loop.
             using absl::SkipWhitespace;
             std::string s = " ,x,,x,,x,x,x,,";
-            for(std::string_view sp : absl::StrSplit(s, ',', SkipWhitespace())) {
+            for (std::string_view sp : absl::StrSplit(s, ',', SkipWhitespace())) {
                 EXPECT_EQ("x", sp);
             }
         }
@@ -271,7 +229,7 @@ namespace {
             // the keys and values. This also uses the Limit delimiter so that the
             // std::string "a=b=c" will split to "a" -> "b=c".
             std::map<std::string, std::string> m;
-            for(std::string_view sp : absl::StrSplit("a=b=c,d=e,f=,g", ',')) {
+            for (std::string_view sp : absl::StrSplit("a=b=c,d=e,f=,g", ',')) {
                 m.insert(absl::StrSplit(sp, absl::MaxSplits('=', 1)));
             }
             EXPECT_EQ("b=c", m.find("a")->second);
@@ -295,7 +253,7 @@ namespace {
         ++it;                 // tests preincrement
         EXPECT_NE(it, end);
         EXPECT_EQ("b",
-                  std::string(it->data(), it->size()));  // tests dereference as ptr
+            std::string(it->data(), it->size()));  // tests dereference as ptr
         it++;                                            // tests postincrement
         EXPECT_EQ(it, end);
     }
@@ -320,7 +278,7 @@ namespace {
         ++it;                 // tests preincrement -- "b" should be skipped here.
         EXPECT_NE(it, end);
         EXPECT_EQ("c",
-                  std::string(it->data(), it->size()));  // tests dereference as ptr
+            std::string(it->data(), it->size()));  // tests dereference as ptr
         it++;                                            // tests postincrement
         EXPECT_EQ(it, end);
     }
@@ -340,12 +298,12 @@ namespace {
             {"foo,bar", {"foo", "bar"}},
         };
 
-        for(const auto& spec : specs) {
+        for (const auto& spec : specs) {
             SCOPED_TRACE(spec.in);
             auto splitter = absl::StrSplit(spec.in, ',');
             auto it = splitter.begin();
             auto end = splitter.end();
-            for(const auto& expected : spec.expect) {
+            for (const auto& expected : spec.expect) {
                 EXPECT_NE(it, end);
                 EXPECT_EQ(expected, *it++);
             }
@@ -384,7 +342,7 @@ namespace {
         // working correctly. At this point it2 points to "c", and we use that as the
         // "end" condition in this test.
         std::vector<std::string_view> v;
-        for(; it != it2; ++it) {
+        for (; it != it2; ++it) {
             v.push_back(*it);
         }
         EXPECT_THAT(v, ElementsAre("a", "b"));
@@ -397,7 +355,7 @@ namespace {
     TEST(Splitter, RangeIterators) {
         auto splitter = absl::StrSplit("a,b,c", ',');
         std::vector<std::string_view> output;
-        for(const std::string_view& p : splitter) {
+        for (const std::string_view& p : splitter) {
             output.push_back(p);
         }
         EXPECT_THAT(output, ElementsAre("a", "b", "c"));
@@ -638,7 +596,7 @@ namespace {
         // This happens more often in C++11 as part of a range-based for loop.
         auto splitter = absl::StrSplit(std::string(input), ',');
         std::string expected = "a";
-        for(std::string_view letter : splitter) {
+        for (std::string_view letter : splitter) {
             EXPECT_EQ(expected, letter);
             ++expected[0];
         }
@@ -647,7 +605,7 @@ namespace {
         // This happens more often in C++11 as part of a range-based for loop.
         auto std_splitter = absl::StrSplit(std::string(input), ',');
         expected = "a";
-        for(std::string_view letter : std_splitter) {
+        for (std::string_view letter : std_splitter) {
             EXPECT_EQ(expected, letter);
             ++expected[0];
         }
@@ -829,7 +787,7 @@ namespace {
 
     template <typename Delimiter>
     static bool IsFoundAtStartingPos(std::string_view text, Delimiter d,
-                                     size_t starting_pos, int expected_pos) {
+        size_t starting_pos, int expected_pos) {
         std::string_view found = d.Find(text, starting_pos);
         return found.data() != text.data() + text.size() &&
             expected_pos == found.data() - text.data();
@@ -845,8 +803,8 @@ namespace {
         const std::string leading_text = ",x,y,z,";
         return IsFoundAtStartingPos(text, d, 0, expected_pos) &&
             IsFoundAtStartingPos(leading_text + std::string(text), d,
-                                 leading_text.length(),
-                                 expected_pos + leading_text.length());
+                leading_text.length(),
+                expected_pos + leading_text.length());
     }
 
     //
@@ -971,8 +929,8 @@ namespace {
     }
 
     TEST(Split, WorksWithLargeStrings) {
-        if(sizeof(size_t) > 4) {
-            std::string s((uint32_t{1} << 31) + 1, 'x');  // 2G + 1 byte
+        if (sizeof(size_t) > 4) {
+            std::string s((uint32_t{ 1 } << 31) + 1, 'x');  // 2G + 1 byte
             s.back() = '-';
             std::vector<std::string_view> v = absl::StrSplit(s, '-');
             EXPECT_EQ(2, v.size());
@@ -997,7 +955,7 @@ namespace {
             (absl::strings_internal::HasConstIterator<std::map<int, int>>::value));
         EXPECT_FALSE(absl::strings_internal::IsInitializerList<int>::value);
         EXPECT_TRUE((absl::strings_internal::IsInitializerList<
-                     std::initializer_list<int>>::value));
+            std::initializer_list<int>>::value));
     }
 
 
@@ -1008,62 +966,62 @@ namespace {
         std::string s;
 
         // Empty string.
-        s = absl::StrReplaceAll(s, {{"", ""}});
+        s = absl::StrReplaceAll(s, { {"", ""} });
         EXPECT_EQ(s, "");
-        s = absl::StrReplaceAll(s, {{"x", ""}});
+        s = absl::StrReplaceAll(s, { {"x", ""} });
         EXPECT_EQ(s, "");
-        s = absl::StrReplaceAll(s, {{"", "y"}});
+        s = absl::StrReplaceAll(s, { {"", "y"} });
         EXPECT_EQ(s, "");
-        s = absl::StrReplaceAll(s, {{"x", "y"}});
+        s = absl::StrReplaceAll(s, { {"x", "y"} });
         EXPECT_EQ(s, "");
 
         // Empty substring.
-        s = absl::StrReplaceAll("abc", {{"", ""}});
+        s = absl::StrReplaceAll("abc", { {"", ""} });
         EXPECT_EQ(s, "abc");
-        s = absl::StrReplaceAll("abc", {{"", "y"}});
+        s = absl::StrReplaceAll("abc", { {"", "y"} });
         EXPECT_EQ(s, "abc");
-        s = absl::StrReplaceAll("abc", {{"x", ""}});
+        s = absl::StrReplaceAll("abc", { {"x", ""} });
         EXPECT_EQ(s, "abc");
 
         // Substring not found.
-        s = absl::StrReplaceAll("abc", {{"xyz", "123"}});
+        s = absl::StrReplaceAll("abc", { {"xyz", "123"} });
         EXPECT_EQ(s, "abc");
 
         // Replace entire string.
-        s = absl::StrReplaceAll("abc", {{"abc", "xyz"}});
+        s = absl::StrReplaceAll("abc", { {"abc", "xyz"} });
         EXPECT_EQ(s, "xyz");
 
         // Replace once at the start.
-        s = absl::StrReplaceAll("abc", {{"a", "x"}});
+        s = absl::StrReplaceAll("abc", { {"a", "x"} });
         EXPECT_EQ(s, "xbc");
 
         // Replace once in the middle.
-        s = absl::StrReplaceAll("abc", {{"b", "x"}});
+        s = absl::StrReplaceAll("abc", { {"b", "x"} });
         EXPECT_EQ(s, "axc");
 
         // Replace once at the end.
-        s = absl::StrReplaceAll("abc", {{"c", "x"}});
+        s = absl::StrReplaceAll("abc", { {"c", "x"} });
         EXPECT_EQ(s, "abx");
 
         // Replace multiple times with varying lengths of original/replacement.
-        s = absl::StrReplaceAll("ababa", {{"a", "xxx"}});
+        s = absl::StrReplaceAll("ababa", { {"a", "xxx"} });
         EXPECT_EQ(s, "xxxbxxxbxxx");
 
-        s = absl::StrReplaceAll("ababa", {{"b", "xxx"}});
+        s = absl::StrReplaceAll("ababa", { {"b", "xxx"} });
         EXPECT_EQ(s, "axxxaxxxa");
 
-        s = absl::StrReplaceAll("aaabaaabaaa", {{"aaa", "x"}});
+        s = absl::StrReplaceAll("aaabaaabaaa", { {"aaa", "x"} });
         EXPECT_EQ(s, "xbxbx");
 
-        s = absl::StrReplaceAll("abbbabbba", {{"bbb", "x"}});
+        s = absl::StrReplaceAll("abbbabbba", { {"bbb", "x"} });
         EXPECT_EQ(s, "axaxa");
 
         // Overlapping matches are replaced greedily.
-        s = absl::StrReplaceAll("aaa", {{"aa", "x"}});
+        s = absl::StrReplaceAll("aaa", { {"aa", "x"} });
         EXPECT_EQ(s, "xa");
 
         // The replacements are not recursive.
-        s = absl::StrReplaceAll("aaa", {{"aa", "a"}});
+        s = absl::StrReplaceAll("aaa", { {"aa", "a"} });
         EXPECT_EQ(s, "aa");
     }
 
@@ -1071,56 +1029,56 @@ namespace {
         std::string s;
 
         // Empty string.
-        s = absl::StrReplaceAll("", {{"", ""}, {"x", ""}, {"", "y"}, {"x", "y"}});
+        s = absl::StrReplaceAll("", { {"", ""}, {"x", ""}, {"", "y"}, {"x", "y"} });
         EXPECT_EQ(s, "");
 
         // Empty substring.
-        s = absl::StrReplaceAll("abc", {{"", ""}, {"", "y"}, {"x", ""}});
+        s = absl::StrReplaceAll("abc", { {"", ""}, {"", "y"}, {"x", ""} });
         EXPECT_EQ(s, "abc");
 
         // Replace entire string, one char at a time
-        s = absl::StrReplaceAll("abc", {{"a", "x"}, {"b", "y"}, {"c", "z"}});
+        s = absl::StrReplaceAll("abc", { {"a", "x"}, {"b", "y"}, {"c", "z"} });
         EXPECT_EQ(s, "xyz");
-        s = absl::StrReplaceAll("zxy", {{"z", "x"}, {"x", "y"}, {"y", "z"}});
+        s = absl::StrReplaceAll("zxy", { {"z", "x"}, {"x", "y"}, {"y", "z"} });
         EXPECT_EQ(s, "xyz");
 
         // Replace once at the start (longer matches take precedence)
-        s = absl::StrReplaceAll("abc", {{"a", "x"}, {"ab", "xy"}, {"abc", "xyz"}});
+        s = absl::StrReplaceAll("abc", { {"a", "x"}, {"ab", "xy"}, {"abc", "xyz"} });
         EXPECT_EQ(s, "xyz");
 
         // Replace once in the middle.
         s = absl::StrReplaceAll(
-            "Abc!", {{"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc", "yz"}, {"c", "z"}});
+            "Abc!", { {"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc", "yz"}, {"c", "z"} });
         EXPECT_EQ(s, "Ayz!");
 
         // Replace once at the end.
         s = absl::StrReplaceAll(
             "Abc!",
-            {{"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc!", "yz?"}, {"c!", "z;"}});
+            { {"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc!", "yz?"}, {"c!", "z;"} });
         EXPECT_EQ(s, "Ayz?");
 
         // Replace multiple times with varying lengths of original/replacement.
-        s = absl::StrReplaceAll("ababa", {{"a", "xxx"}, {"b", "XXXX"}});
+        s = absl::StrReplaceAll("ababa", { {"a", "xxx"}, {"b", "XXXX"} });
         EXPECT_EQ(s, "xxxXXXXxxxXXXXxxx");
 
         // Overlapping matches are replaced greedily.
-        s = absl::StrReplaceAll("aaa", {{"aa", "x"}, {"a", "X"}});
+        s = absl::StrReplaceAll("aaa", { {"aa", "x"}, {"a", "X"} });
         EXPECT_EQ(s, "xX");
-        s = absl::StrReplaceAll("aaa", {{"a", "X"}, {"aa", "x"}});
+        s = absl::StrReplaceAll("aaa", { {"a", "X"}, {"aa", "x"} });
         EXPECT_EQ(s, "xX");
 
         // Two well-known sentences
         s = absl::StrReplaceAll("the quick brown fox jumped over the lazy dogs",
-                                {
-                                    {"brown", "box"},
-                                    {"dogs", "jugs"},
-                                    {"fox", "with"},
-                                    {"jumped", "five"},
-                                    {"over", "dozen"},
-                                    {"quick", "my"},
-                                    {"the", "pack"},
-                                    {"the lazy", "liquor"},
-                                });
+            {
+                {"brown", "box"},
+                {"dogs", "jugs"},
+                {"fox", "with"},
+                {"jumped", "five"},
+                {"over", "dozen"},
+                {"quick", "my"},
+                {"the", "pack"},
+                {"the lazy", "liquor"},
+            });
         EXPECT_EQ(s, "pack my box with five dozen liquor jugs");
     }
 
@@ -1130,16 +1088,16 @@ namespace {
         replacements["$count"] = "5";
         replacements["#Noun"] = "Apples";
         std::string s = absl::StrReplaceAll("$who bought $count #Noun. Thanks $who!",
-                                            replacements);
+            replacements);
         EXPECT_EQ("Bob bought 5 Apples. Thanks Bob!", s);
     }
 
     TEST(StrReplaceAll, ReplacementsInPlace) {
         std::string s = std::string("$who bought $count #Noun. Thanks $who!");
         int count;
-        count = absl::StrReplaceAll({{"$count", absl::StrCat(5)},
+        count = absl::StrReplaceAll({ {"$count", absl::StrCat(5)},
                                     {"$who", "Bob"},
-                                    {"#Noun", "Apples"}}, &s);
+                                    {"#Noun", "Apples"} }, &s);
         EXPECT_EQ(count, 4);
         EXPECT_EQ("Bob bought 5 Apples. Thanks Bob!", s);
     }
@@ -1167,7 +1125,7 @@ namespace {
     std::string_view get(const Cont& c) {
         auto splitter = absl::StrSplit(c.data, ':');
         auto it = splitter.begin();
-        for(int i = 0; i < index; ++i) ++it;
+        for (int i = 0; i < index; ++i) ++it;
 
         return *it;
     }
@@ -1182,17 +1140,17 @@ namespace {
             EXPECT_EQ("abc", s);
 
             s = "abc";
-            replacements.push_back({"a", "A"});
+            replacements.push_back({ "a", "A" });
             EXPECT_EQ(1, absl::StrReplaceAll(replacements, &s));
             EXPECT_EQ("Abc", s);
 
             s = "abc";
-            replacements.push_back({"b", "B"});
+            replacements.push_back({ "b", "B" });
             EXPECT_EQ(2, absl::StrReplaceAll(replacements, &s));
             EXPECT_EQ("ABc", s);
 
             s = "abc";
-            replacements.push_back({"d", "D"});
+            replacements.push_back({ "d", "D" });
             EXPECT_EQ(2, absl::StrReplaceAll(replacements, &s));
             EXPECT_EQ("ABc", s);
 
@@ -1212,7 +1170,7 @@ namespace {
 
         {
             std::list<std::pair<std::string_view, std::string_view>> replacements = {
-                {"a", "x"}, {"b", "y"}, {"c", "z"}};
+                {"a", "x"}, {"b", "y"}, {"c", "z"} };
 
             std::string s = absl::StrReplaceAll("abc", replacements);
             EXPECT_EQ(s, "xyz");
@@ -1221,9 +1179,9 @@ namespace {
         {
             using X = std::tuple<std::string_view, std::string, int>;
             std::vector<X> replacements(3);
-            replacements[0] = X{"a", "x", 1};
-            replacements[1] = X{"b", "y", 0};
-            replacements[2] = X{"c", "z", -1};
+            replacements[0] = X{ "a", "x", 1 };
+            replacements[1] = X{ "b", "y", 0 };
+            replacements[2] = X{ "c", "z", -1 };
 
             std::string s = absl::StrReplaceAll("abc", replacements);
             EXPECT_EQ(s, "xyz");
@@ -1231,9 +1189,9 @@ namespace {
 
         {
             std::vector<Cont> replacements(3);
-            replacements[0] = Cont{"a:x"};
-            replacements[1] = Cont{"b:y"};
-            replacements[2] = Cont{"c:z"};
+            replacements[0] = Cont{ "a:x" };
+            replacements[1] = Cont{ "b:y" };
+            replacements[2] = Cont{ "c:z" };
 
             std::string s = absl::StrReplaceAll("abc", replacements);
             EXPECT_EQ(s, "xyz");
@@ -1248,59 +1206,59 @@ namespace {
 
         // Empty string.
         s = "";
-        reps = absl::StrReplaceAll({{"", ""}, {"x", ""}, {"", "y"}, {"x", "y"}}, &s);
+        reps = absl::StrReplaceAll({ {"", ""}, {"x", ""}, {"", "y"}, {"x", "y"} }, &s);
         EXPECT_EQ(reps, 0);
         EXPECT_EQ(s, "");
 
         // Empty substring.
         s = "abc";
-        reps = absl::StrReplaceAll({{"", ""}, {"", "y"}, {"x", ""}}, &s);
+        reps = absl::StrReplaceAll({ {"", ""}, {"", "y"}, {"x", ""} }, &s);
         EXPECT_EQ(reps, 0);
         EXPECT_EQ(s, "abc");
 
         // Replace entire string, one char at a time
         s = "abc";
-        reps = absl::StrReplaceAll({{"a", "x"}, {"b", "y"}, {"c", "z"}}, &s);
+        reps = absl::StrReplaceAll({ {"a", "x"}, {"b", "y"}, {"c", "z"} }, &s);
         EXPECT_EQ(reps, 3);
         EXPECT_EQ(s, "xyz");
         s = "zxy";
-        reps = absl::StrReplaceAll({{"z", "x"}, {"x", "y"}, {"y", "z"}}, &s);
+        reps = absl::StrReplaceAll({ {"z", "x"}, {"x", "y"}, {"y", "z"} }, &s);
         EXPECT_EQ(reps, 3);
         EXPECT_EQ(s, "xyz");
 
         // Replace once at the start (longer matches take precedence)
         s = "abc";
-        reps = absl::StrReplaceAll({{"a", "x"}, {"ab", "xy"}, {"abc", "xyz"}}, &s);
+        reps = absl::StrReplaceAll({ {"a", "x"}, {"ab", "xy"}, {"abc", "xyz"} }, &s);
         EXPECT_EQ(reps, 1);
         EXPECT_EQ(s, "xyz");
 
         // Replace once in the middle.
         s = "Abc!";
         reps = absl::StrReplaceAll(
-            {{"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc", "yz"}, {"c", "z"}}, &s);
+            { {"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc", "yz"}, {"c", "z"} }, &s);
         EXPECT_EQ(reps, 1);
         EXPECT_EQ(s, "Ayz!");
 
         // Replace once at the end.
         s = "Abc!";
         reps = absl::StrReplaceAll(
-            {{"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc!", "yz?"}, {"c!", "z;"}}, &s);
+            { {"a", "x"}, {"ab", "xy"}, {"b", "y"}, {"bc!", "yz?"}, {"c!", "z;"} }, &s);
         EXPECT_EQ(reps, 1);
         EXPECT_EQ(s, "Ayz?");
 
         // Replace multiple times with varying lengths of original/replacement.
         s = "ababa";
-        reps = absl::StrReplaceAll({{"a", "xxx"}, {"b", "XXXX"}}, &s);
+        reps = absl::StrReplaceAll({ {"a", "xxx"}, {"b", "XXXX"} }, &s);
         EXPECT_EQ(reps, 5);
         EXPECT_EQ(s, "xxxXXXXxxxXXXXxxx");
 
         // Overlapping matches are replaced greedily.
         s = "aaa";
-        reps = absl::StrReplaceAll({{"aa", "x"}, {"a", "X"}}, &s);
+        reps = absl::StrReplaceAll({ {"aa", "x"}, {"a", "X"} }, &s);
         EXPECT_EQ(reps, 2);
         EXPECT_EQ(s, "xX");
         s = "aaa";
-        reps = absl::StrReplaceAll({{"a", "X"}, {"aa", "x"}}, &s);
+        reps = absl::StrReplaceAll({ {"a", "X"}, {"aa", "x"} }, &s);
         EXPECT_EQ(reps, 2);
         EXPECT_EQ(s, "xX");
 
@@ -1396,7 +1354,7 @@ namespace {
     TEST(StrCat, Basics) {
         std::string result;
 
-        std::string strs[] = {"Hello", "Cruel", "World"};
+        std::string strs[] = { "Hello", "Cruel", "World" };
 
         std::string stdstrs[] = {
           "std::Hello",
@@ -1404,7 +1362,7 @@ namespace {
           "std::World"
         };
 
-        std::string_view pieces[] = {"Hello", "Cruel", "World"};
+        std::string_view pieces[] = { "Hello", "Cruel", "World" };
 
         const char* c_strs[] = {
           "Hello",
@@ -1412,8 +1370,8 @@ namespace {
           "World"
         };
 
-        int32_t i32s[] = {'H', 'C', 'W'};
-        uint64_t ui64s[] = {12345678910LL, 10987654321LL};
+        int32_t i32s[] = { 'H', 'C', 'W' };
+        uint64_t ui64s[] = { 12345678910LL, 10987654321LL };
 
         EXPECT_EQ(absl::StrCat(), "");
 
@@ -1452,10 +1410,10 @@ namespace {
 
         std::string one =
             "1";  // Actually, it's the size of this string that we want; a
-                  // 64-bit build distinguishes between size_t and uint64_t,
-                  // even though they're both unsigned 64-bit values.
+        // 64-bit build distinguishes between size_t and uint64_t,
+        // even though they're both unsigned 64-bit values.
         result = absl::StrCat("And a ", one.size(), " and a ",
-                              &result[2] - &result[0], " and a ", one, " 2 3 4", "!");
+            &result[2] - &result[0], " and a ", one, " 2 3 4", "!");
         EXPECT_EQ(result, "And a 1 and a 2 and a 1 2 3 4!");
 
         // result = absl::StrCat("Single chars won't compile", '!');
@@ -1480,7 +1438,7 @@ namespace {
         EXPECT_EQ(result, "A hundred K and a half squared is 1.00001e+10");
 
         result = absl::StrCat(1, 2, 333, 4444, 55555, 666666, 7777777, 88888888,
-                              999999999);
+            999999999);
         EXPECT_EQ(result, "12333444455555666666777777788888888999999999");
     }
 
@@ -1542,8 +1500,8 @@ namespace {
 
         std::string result = absl::StrCat(str1, str2);
         EXPECT_EQ(result,
-                  "PARACHUTE OFF A BLIMP INTO MOSCONE!!"
-                  "Read this book about coffee tables");
+            "PARACHUTE OFF A BLIMP INTO MOSCONE!!"
+            "Read this book about coffee tables");
     }
 
     TEST(StrCat, MaxArgs) {
@@ -1563,37 +1521,37 @@ namespace {
             absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f");
         EXPECT_EQ(result, "123456789abcdef");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g");
+            "g");
         EXPECT_EQ(result, "123456789abcdefg");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h");
+            "g", "h");
         EXPECT_EQ(result, "123456789abcdefgh");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i");
+            "g", "h", "i");
         EXPECT_EQ(result, "123456789abcdefghi");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j");
+            "g", "h", "i", "j");
         EXPECT_EQ(result, "123456789abcdefghij");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k");
+            "g", "h", "i", "j", "k");
         EXPECT_EQ(result, "123456789abcdefghijk");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l");
+            "g", "h", "i", "j", "k", "l");
         EXPECT_EQ(result, "123456789abcdefghijkl");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l", "m");
+            "g", "h", "i", "j", "k", "l", "m");
         EXPECT_EQ(result, "123456789abcdefghijklm");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l", "m", "n");
+            "g", "h", "i", "j", "k", "l", "m", "n");
         EXPECT_EQ(result, "123456789abcdefghijklmn");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l", "m", "n", "o");
+            "g", "h", "i", "j", "k", "l", "m", "n", "o");
         EXPECT_EQ(result, "123456789abcdefghijklmno");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l", "m", "n", "o", "p");
+            "g", "h", "i", "j", "k", "l", "m", "n", "o", "p");
         EXPECT_EQ(result, "123456789abcdefghijklmnop");
         result = absl::StrCat(1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f",
-                              "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q");
+            "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q");
         EXPECT_EQ(result, "123456789abcdefghijklmnopq");
         // No limit thanks to C++11's variadic templates
         result = absl::StrCat(
@@ -1602,13 +1560,13 @@ namespace {
             "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
             "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
         EXPECT_EQ(result,
-                  "12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            "12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
 
     TEST(StrAppend, Basics) {
         std::string result = "existing text";
 
-        std::string strs[] = {"Hello", "Cruel", "World"};
+        std::string strs[] = { "Hello", "Cruel", "World" };
 
         std::string stdstrs[] = {
           "std::Hello",
@@ -1616,7 +1574,7 @@ namespace {
           "std::World"
         };
 
-        std::string_view pieces[] = {"Hello", "Cruel", "World"};
+        std::string_view pieces[] = { "Hello", "Cruel", "World" };
 
         const char* c_strs[] = {
           "Hello",
@@ -1624,8 +1582,8 @@ namespace {
           "World"
         };
 
-        int32_t i32s[] = {'H', 'C', 'W'};
-        uint64_t ui64s[] = {12345678910LL, 10987654321LL};
+        int32_t i32s[] = { 'H', 'C', 'W' };
+        uint64_t ui64s[] = { 12345678910LL, 10987654321LL };
 
         std::string::size_type old_size = result.size();
         absl::StrAppend(&result);
@@ -1665,25 +1623,25 @@ namespace {
 
         std::string one =
             "1";  // Actually, it's the size of this string that we want; a
-                  // 64-bit build distinguishes between size_t and uint64_t,
-                  // even though they're both unsigned 64-bit values.
+        // 64-bit build distinguishes between size_t and uint64_t,
+        // even though they're both unsigned 64-bit values.
         old_size = result.size();
         absl::StrAppend(&result, "And a ", one.size(), " and a ",
-                        &result[2] - &result[0], " and a ", one, " 2 3 4", "!");
+            &result[2] - &result[0], " and a ", one, " 2 3 4", "!");
         EXPECT_EQ(result.substr(old_size), "And a 1 and a 2 and a 1 2 3 4!");
 
         // result = absl::StrCat("Single chars won't compile", '!');
         // result = absl::StrCat("Neither will nullptrs", nullptr);
         old_size = result.size();
         absl::StrAppend(&result,
-                        "To output a char by ASCII/numeric value, use +: ", '!' + 0);
+            "To output a char by ASCII/numeric value, use +: ", '!' + 0);
         EXPECT_EQ(result.substr(old_size),
-                  "To output a char by ASCII/numeric value, use +: 33");
+            "To output a char by ASCII/numeric value, use +: 33");
 
         // Test 9 arguments, the old maximum
         old_size = result.size();
         absl::StrAppend(&result, 1, 22, 333, 4444, 55555, 666666, 7777777, 88888888,
-                        9);
+            9);
         EXPECT_EQ(result.substr(old_size), "1223334444555556666667777777888888889");
 
         // No limit thanks to C++11's variadic templates
@@ -1696,8 +1654,8 @@ namespace {
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",  //
             "No limit thanks to C++11's variadic templates");
         EXPECT_EQ(result.substr(old_size),
-                  "12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                  "No limit thanks to C++11's variadic templates");
+            "12345678910abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "No limit thanks to C++11's variadic templates");
     }
 
     TEST(StrCat, VectorBoolReferenceTypes) {
@@ -1726,16 +1684,16 @@ namespace {
         EXPECT_EQ(result, "12345");
     }
 
-//#ifdef GTEST_HAS_DEATH_TEST
-//    TEST(StrAppend, Death) {
-//        std::string s = "self";
-//        // on linux it's "assertion", on mac it's "Assertion",
-//        // on chromiumos it's "Assertion ... failed".
-//        ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s.c_str() + 1),
-//                                "ssertion.*failed");
-//        ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s), "ssertion.*failed");
-//    }
-//#endif  // GTEST_HAS_DEATH_TEST
+    //#ifdef GTEST_HAS_DEATH_TEST
+    //    TEST(StrAppend, Death) {
+    //        std::string s = "self";
+    //        // on linux it's "assertion", on mac it's "Assertion",
+    //        // on chromiumos it's "Assertion ... failed".
+    //        ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s.c_str() + 1),
+    //                                "ssertion.*failed");
+    //        ABSL_EXPECT_DEBUG_DEATH(absl::StrAppend(&s, s), "ssertion.*failed");
+    //    }
+    //#endif  // GTEST_HAS_DEATH_TEST
 
     TEST(StrAppend, CornerCases) {
         std::string result;
@@ -1752,7 +1710,7 @@ namespace {
     }
 
     TEST(StrAppend, CornerCasesNonEmptyAppend) {
-        for(std::string result : {"hello", "a string too long to fit in the SSO"}) {
+        for (std::string result : {"hello", "a string too long to fit in the SSO"}) {
             const std::string expected = result;
             absl::StrAppend(&result, "");
             EXPECT_EQ(result, expected);
@@ -1769,54 +1727,54 @@ namespace {
 
     template <typename IntType>
     void CheckHex(IntType v, const char* nopad_format, const char* zeropad_format,
-                  const char* spacepad_format) {
+        const char* spacepad_format) {
         char expected[256];
 
         std::string actual = absl::StrCat(absl::Hex(v, absl::kNoPad));
         snprintf(expected, sizeof(expected), nopad_format, v);
         EXPECT_EQ(expected, actual) << " decimal value " << v;
 
-        for(int spec = absl::kZeroPad2; spec <= absl::kZeroPad20; ++spec) {
+        for (int spec = absl::kZeroPad2; spec <= absl::kZeroPad20; ++spec) {
             std::string actual =
                 absl::StrCat(absl::Hex(v, static_cast<absl::PadSpec>(spec)));
             snprintf(expected, sizeof(expected), zeropad_format,
-                     spec - absl::kZeroPad2 + 2, v);
+                spec - absl::kZeroPad2 + 2, v);
             EXPECT_EQ(expected, actual) << " decimal value " << v;
         }
 
-        for(int spec = absl::kSpacePad2; spec <= absl::kSpacePad20; ++spec) {
+        for (int spec = absl::kSpacePad2; spec <= absl::kSpacePad20; ++spec) {
             std::string actual =
                 absl::StrCat(absl::Hex(v, static_cast<absl::PadSpec>(spec)));
             snprintf(expected, sizeof(expected), spacepad_format,
-                     spec - absl::kSpacePad2 + 2, v);
+                spec - absl::kSpacePad2 + 2, v);
             EXPECT_EQ(expected, actual) << " decimal value " << v;
         }
     }
 
     template <typename IntType>
     void CheckDec(IntType v, const char* nopad_format, const char* zeropad_format,
-                  const char* spacepad_format) {
+        const char* spacepad_format) {
         char expected[256];
 
         std::string actual = absl::StrCat(absl::Dec(v, absl::kNoPad));
         snprintf(expected, sizeof(expected), nopad_format, v);
         EXPECT_EQ(expected, actual) << " decimal value " << v;
 
-        for(int spec = absl::kZeroPad2; spec <= absl::kZeroPad20; ++spec) {
+        for (int spec = absl::kZeroPad2; spec <= absl::kZeroPad20; ++spec) {
             std::string actual =
                 absl::StrCat(absl::Dec(v, static_cast<absl::PadSpec>(spec)));
             snprintf(expected, sizeof(expected), zeropad_format,
-                     spec - absl::kZeroPad2 + 2, v);
+                spec - absl::kZeroPad2 + 2, v);
             EXPECT_EQ(expected, actual)
                 << " decimal value " << v << " format '" << zeropad_format
                 << "' digits " << (spec - absl::kZeroPad2 + 2);
         }
 
-        for(int spec = absl::kSpacePad2; spec <= absl::kSpacePad20; ++spec) {
+        for (int spec = absl::kSpacePad2; spec <= absl::kSpacePad20; ++spec) {
             std::string actual =
                 absl::StrCat(absl::Dec(v, static_cast<absl::PadSpec>(spec)));
             snprintf(expected, sizeof(expected), spacepad_format,
-                     spec - absl::kSpacePad2 + 2, v);
+                spec - absl::kSpacePad2 + 2, v);
             EXPECT_EQ(expected, actual)
                 << " decimal value " << v << " format '" << spacepad_format
                 << "' digits " << (spec - absl::kSpacePad2 + 2);
@@ -1832,7 +1790,7 @@ namespace {
         long long llv = static_cast<long long>(ullv);  // NOLINT(runtime/int)
         CheckDec(llv, "%lld", "%0*lld", "%*lld");
 
-        if(sizeof(v) == sizeof(&v)) {
+        if (sizeof(v) == sizeof(&v)) {
             auto uintptr = static_cast<uintptr_t>(v);
             void* ptr = reinterpret_cast<void*>(uintptr);
             CheckHex(ptr, "%llx", "%0*llx", "%*llx");
@@ -1845,7 +1803,7 @@ namespace {
         int32_t v = static_cast<int32_t>(uv);
         CheckDec(v, "%d", "%0*d", "%*d");
 
-        if(sizeof(v) == sizeof(&v)) {
+        if (sizeof(v) == sizeof(&v)) {
             auto uintptr = static_cast<uintptr_t>(v);
             void* ptr = reinterpret_cast<void*>(uintptr);
             CheckHex(ptr, "%x", "%0*x", "%*x");
@@ -1859,7 +1817,7 @@ namespace {
 
     void TestFastPrints() {
         // Test all small ints; there aren't many and they're common.
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             CheckAll(i);
         }
 
@@ -2005,8 +1963,3 @@ namespace {
     }
 
 }  // namespace
-
-int main(int argc, char* argv[]) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
