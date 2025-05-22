@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.20)
 
 project(lxd-test CXX)
 
@@ -15,10 +15,9 @@ find_package(GTest CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME}
 	TestAll.cpp
-	TestStrings.cpp
 	TestJson.cpp
 	TestTimer.cpp
-)
+	TestStl2Ply.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE lxd GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
 

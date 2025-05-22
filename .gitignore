@@ -1,3 +1,4 @@
 build/
 bin/
 .vs/
+vcpkg_installed
